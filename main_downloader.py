@@ -2,6 +2,7 @@ import google_image_downloader
 import ig_image_downloader
 import baidu_image_downloader
 import bing_image_downloader
+import pinterest_image_downloader
 import os,time
 from datetime import datetime
 
@@ -47,6 +48,15 @@ if __name__ == '__main__':
     del mydownloader
     ig_image_num = nowindex - lastindex
     lastindex = nowindex
+    #pinterest
+    nowtime = datetime.now()
+    print(nowtime,'開始從pinterest下載圖片')
+    mydownloader = pinterest_image_downloader.downloader(search,DIR,nowindex)
+    nowindex = mydownloader.start_downloader()
+    time.sleep(1)
+    del mydownloader
+    pin_image_num = nowindex - lastindex
+    lastindex = nowindex
     #bing
     nowtime = datetime.now()
     print(nowtime,'開始從Bing搜尋引擎下載圖片')
@@ -69,6 +79,7 @@ if __name__ == '__main__':
     print('總歷時',endtime-starttime)
     print('Google:',google_image_num,'張')
     print('Instagram:',ig_image_num,'張')
+    print('Pinterest:',pin_image_num,'張')
     print('Bing:',bing_image_num,'張')
     print('Baidu:',baidu_image_num,'張')
 
