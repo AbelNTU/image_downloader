@@ -2,6 +2,7 @@
 ## 1.需要套件
 1. [**selenium**](http://selenium-python.readthedocs.io/installation.html#downloading-python-bindings-for-selenium)  (Driver請選擇Chrome) <br>
 2. [**requests**](http://docs.python-requests.org/en/master/user/install/) <br>
+3. [**BeautifulSoup**](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup) <br>
 
 ## 2.執行
 1.四個.py檔案一定要放置於同一資料夾 <br>
