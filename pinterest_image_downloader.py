@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from selenium import webdriver
 import os,time,requests,threading
 import urllib.parse
@@ -24,7 +25,7 @@ class downloader(object):
         driver.implicitly_wait(2)
         driver.get(url)
         scroll_down = "document.body.scrollTop=document.body.scrollHeight"
-        page = 200
+        page = 40
         for i in range(page):
             nowtime = datetime.now()
             progress = round((i+1)/page*100,1)

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import re
 import requests
 import os
@@ -79,7 +80,7 @@ class downloader(object):
         URL_res = requests.session().get(URL.format(word=word,pn=0)).content.decode('utf-8')
         res_list = re.findall(r'"displayNum":(\d+),', URL_res)
         max_num = int(res_list[0]) if res_list else 0
-        display_URLs = [URL.format(word=word,pn = i) for i in range(0,10000,60)]
+        display_URLs = [URL.format(word=word,pn = i) for i in range(0,1000,60)]
         return display_URLs
 
     def revolveImageURL(self,display_url):

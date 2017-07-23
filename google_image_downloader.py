@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from selenium import webdriver
 import json,requests,os,time
 import threading

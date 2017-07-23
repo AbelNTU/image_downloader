@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import google_image_downloader
 import ig_image_downloader
 import baidu_image_downloader
@@ -22,6 +23,9 @@ def get_index(folder_dir,food):
 if __name__ == '__main__':
     search = input('輸入關鍵字:')
     DIR = os.getcwd()
+    DIR = os.path.join(DIR,'image')
+    if not os.path.exists(DIR):
+        os.mkdir(DIR)
     DIR = os.path.join(DIR,'image',search)
     index = 0
     if not os.path.exists(DIR):
@@ -32,7 +36,7 @@ if __name__ == '__main__':
 
     starttime = datetime.now()
     #google
-    print(starttime,'開始從google搜尋引擎下載圖片')
+    print(starttime,'開始從google搜尋引擎下載圖片=============================================================')
     mydownloader = google_image_downloader.downloader(search,DIR,index)
     nowindex = mydownloader.start_downloader()
     time.sleep(1)
@@ -41,7 +45,7 @@ if __name__ == '__main__':
     lastindex = nowindex
     #instagram
     nowtime = datetime.now()
-    print(nowtime,'開始從Instagram下載圖片')
+    print(nowtime,'開始從Instagram下載圖片=============================================================')
     mydownloader = ig_image_downloader.downloader(search,DIR,nowindex)
     nowindex = mydownloader.start_downloader()
     time.sleep(1)
@@ -50,7 +54,7 @@ if __name__ == '__main__':
     lastindex = nowindex
     #pinterest
     nowtime = datetime.now()
-    print(nowtime,'開始從pinterest下載圖片')
+    print(nowtime,'開始從pinterest下載圖片=============================================================')
     mydownloader = pinterest_image_downloader.downloader(search,DIR,nowindex)
     nowindex = mydownloader.start_downloader()
     time.sleep(1)
@@ -59,7 +63,7 @@ if __name__ == '__main__':
     lastindex = nowindex
     #bing
     nowtime = datetime.now()
-    print(nowtime,'開始從Bing搜尋引擎下載圖片')
+    print(nowtime,'開始從Bing搜尋引擎下載圖片=============================================================')
     mydownloader = bing_image_downloader.downloader(search,DIR,nowindex)
     nowindex = mydownloader.start_downloader()
     time.sleep(1)
@@ -68,7 +72,7 @@ if __name__ == '__main__':
     lastindex = nowindex
     #baidu
     nowtime = datetime.now()
-    print(nowtime,'開始從Baidu搜尋引擎下載圖片')
+    print(nowtime,'開始從Baidu搜尋引擎下載圖片=============================================================')
     mydownloader = baidu_image_downloader.downloader(search,DIR,nowindex)
     nowindex = mydownloader.start_downloader()
     time.sleep(1)

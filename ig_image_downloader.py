@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from selenium import webdriver
 import requests,re,time,os
 import urllib.parse
@@ -34,7 +35,7 @@ class downloader(object):
         time.sleep(0.5)
         driver.find_element_by_link_text('載入更多內容').click()
 
-        page =  maxnum // 12
+        page =  700 // 12
         for i in range(page):
             driver.execute_script(scroll_down)
             nowtime = datetime.now()
