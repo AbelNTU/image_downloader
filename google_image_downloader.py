@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
-from selenium import webdriver
+#from selenium import webdriver
+from bs4 import BeautifulSoup
 import json,requests,os,time
 import threading
 from multiprocessing.dummy import Pool
@@ -10,6 +11,7 @@ class downloader(object):
     def __init__(self, word, folder_dir, file_index):
         super(downloader, self).__init__()
         self.word = word
+        self.header = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8'}
         self.DIR = folder_dir
         self.index = file_index
         self.start_index = file_index
@@ -18,6 +20,7 @@ class downloader(object):
         self.imageURLerror = 0
 
     def get_image_url(self):
+        '''
         driver = webdriver.Chrome()
         driver.implicitly_wait(2)
         url = "https://www.google.com.tw/search?q="+self.word+"&source=lnms&tbm=isch"
@@ -42,10 +45,20 @@ class downloader(object):
             link=json.loads(item)["ou"]
             imageURLs.append(link)
         return imageURLs
+        '''
+        url = 'https://www.google.com.tw/search?q='+self.word+'&source=lnms&tbm=isch&tbs=sur:fc'
+        res = requests.get(url,headers = self.header)
+        soup = BeautifulSoup(res.text,"html.parser")
+        all_img = soup.find_all("div","rg_meta")
+        imgURLs = []
+        for a in all_img:
+            link=json.loads(a.text)["ou"]
+            imgURLs.append(link)
+        return imgURLs
 
     def saveImage(self,url):
         try:
-            res = requests.get(url,timeout = 5)
+            res = requests.get(url,timeout = 5,headers = self.header)
             if str(res.status_code)[0] != '2':
                 self.MessageOutput('connect fail,status code:'+str(res.status_code))
                 self.imageURLerror += 1
