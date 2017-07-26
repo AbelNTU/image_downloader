@@ -31,8 +31,8 @@ class downloader(object):
 
     def build_query_url(self):
         word = urllib.parse.quote(self.word)
-        urlform = 'https://www.bing.com/images/async?q={word}&first={num}&count=35&relp=35&qft=+filterui%3aphoto-photo&cw=1440&ch=721&lostate=r&mmasync=1&IG=7E936964CEB741FFB2E0732236A95498&SFX=2&iid=images.5612'
-        Urls = [urlform.format(word = word,num = i) for i in range(0,1000,36)]
+        urlform = 'https://www.bing.com/images/async?q={word}&first={num}&count=35&relp=35&qft=+filterui%3alicense-L2_L3_L4&lostate=r&mmasync=1&IG=7E936964CEB741FFB2E0732236A95498&SFX=2&iid=images.5612'
+        Urls = [urlform.format(word = word,num = i) for i in range(0,100,36)]
         return Urls
 
     def resolve_imgURL(self,query_url):
