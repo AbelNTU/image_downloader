@@ -9,6 +9,7 @@ import threading
 from queue import Queue
 from multiprocessing.dummy import Pool
 from datetime import datetime
+import downloader_setting
 
 class downloader(object):
     """docstring for downloader"""
@@ -23,6 +24,7 @@ class downloader(object):
         self.lock = threading.Lock()
         self.imageError = 0
         self.header = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8'}
+        self.iscopyright = False
 
     def MessageOutput(self,message):
         self.lock.acquire()
@@ -31,7 +33,13 @@ class downloader(object):
 
     def build_query_url(self):
         word = urllib.parse.quote(self.word)
-        urlform = 'https://www.bing.com/images/async?q={word}&first={num}&count=35&relp=35&qft=+filterui%3alicense-L2_L3_L4&lostate=r&mmasync=1&IG=7E936964CEB741FFB2E0732236A95498&SFX=2&iid=images.5612'
+        urlform = 'https://www.bing.com/images/async?q={word}&first={num}&count=35&relp=35&lostate=r&mmasync=1&IG=7E936964CEB741FFB2E0732236A95498&SFX=2&iid=images.5612'
+        '''
+        if self.iscopyright:
+            urlform = 'https://www.bing.com/images/async?q={word}&first={num}&count=35&relp=35&qft=+filterui%3alicense-L2_L3_L4&lostate=r&mmasync=1&IG=7E936964CEB741FFB2E0732236A95498&SFX=2&iid=images.5612'
+        else :
+            urlform = 'https://www.bing.com/images/async?q={word}&first={num}&count=35&relp=35&lostate=r&mmasync=1&IG=7E936964CEB741FFB2E0732236A95498&SFX=2&iid=images.5612'
+        '''
         Urls = [urlform.format(word = word,num = i) for i in range(0,100,36)]
         return Urls
 
@@ -81,6 +89,14 @@ class downloader(object):
         self.MessageOutput(str(nowtime)+' 第'+str(index)+'張圖片下載成功')
 
     def start_downloader(self):
+        '''
+        if downloader_setting.is_python3():
+            choice = input('是否選擇允許商業用途的圖片[Y/N]：')
+        else:
+            choice = raw_input('是否選擇允許商業用途的圖片[Y/N]：')
+        if choice.upper() == 'Y':
+            self.iscopyright = True
+        '''
         starttime = datetime.now()
         queryURLs = self.build_query_url()
         self.pool.map(self.resolve_imgURL,queryURLs)
@@ -96,12 +112,19 @@ class downloader(object):
         return self.index
 
 if __name__ == '__main__':
-    search = input('關鍵字：')
     DIR = os.getcwd()
-    DIR = os.path.join(DIR,search)
+    Dif downloader_setting.is_python3():
+        search = input('關鍵字：')
+    else:
+        search = raw_input('關鍵字：')
+    DIR = os.path.join(DIR,'image',search)
     if not os.path.exists(DIR):
-        os.mkdir(DIR)
-    mydownloader = downloader(search, DIR, 1)
+        os.makedirs(DIR)
+        index = 1
+    else:
+        index = downloader_setting.get_index(DIR,search)
+
+    mydownloader = downloader(search, DIR, index)
     mydownloader.start_downloader()
     del mydownloader
 

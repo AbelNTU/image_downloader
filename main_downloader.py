@@ -4,8 +4,10 @@ import ig_image_downloader
 import baidu_image_downloader
 import bing_image_downloader
 import pinterest_image_downloader
+import flickr_image_downloader
 import os,time
 from datetime import datetime
+import downloader_setting
 
 def get_index(folder_dir,food):
     filenames = os.listdir(folder_dir)
@@ -21,15 +23,15 @@ def get_index(folder_dir,food):
     return max(indexs)+1
 
 if __name__ == '__main__':
-    search = input('輸入關鍵字:')
+    if downloader_setting.is_python3():
+        search = input('關鍵字：')
+    else:
+        search = raw_input('關鍵字：')
     DIR = os.getcwd()
-    DIR = os.path.join(DIR,'image')
-    if not os.path.exists(DIR):
-        os.mkdir(DIR)
     DIR = os.path.join(DIR,'image',search)
     index = 0
     if not os.path.exists(DIR):
-        os.mkdir(DIR)
+        os.makedirs(DIR)
         index = 1
     else:
         index = get_index(DIR,search)
@@ -78,6 +80,15 @@ if __name__ == '__main__':
     time.sleep(1)
     del mydownloader
     baidu_image_num = nowindex - lastindex
+    lastindex = nowindex
+    #flickr
+    print(nowtime,'開始從flickr下載圖片=============================================================')
+    mydownloader = flickr_image_downloader.downloader(search,DIR,nowindex)
+    nowindex = mydownloader.start_downloader()
+    time.sleep(1)
+    del mydownloader
+    flickr_image_num = nowindex - lastindex
+
     endtime = datetime.now()
     print(search,'的圖片下載結束,共下載',nowindex-1,'張圖片')
     print('總歷時',endtime-starttime)
@@ -86,6 +97,8 @@ if __name__ == '__main__':
     print('Pinterest:',pin_image_num,'張')
     print('Bing:',bing_image_num,'張')
     print('Baidu:',baidu_image_num,'張')
+    print('flickr:',flickr_image_num,'張')
+
 
 
 

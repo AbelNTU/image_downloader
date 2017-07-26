@@ -8,6 +8,7 @@ from multiprocessing.dummy import Pool
 import time
 from queue import Queue
 from datetime import datetime
+import downloader_setting
 
 class downloader(object):
     str_table = {
@@ -152,13 +153,20 @@ class downloader(object):
         return self.index
 
 if __name__ == '__main__':
-    search = input('Enter what you want to search: ')
     DIR = os.getcwd()
     #創建食物名稱的資料夾
-    DIR = os.path.join(DIR,search)
+    if downloader_setting.is_python3():
+        search = input('關鍵字：')
+    else:
+        search = raw_input('關鍵字：')
+    DIR = os.path.join(DIR,'image',search)
     if not os.path.exists(DIR):
-        os.mkdir(DIR)
-    mydownloader = downloader(search,DIR,1)
+        os.makedirs(DIR)
+        index = 1
+    else:
+        index = downloader_setting.get_index(DIR,search)
+
+    mydownloader = downloader(search,DIR,index)
     mydownloader.start_downloader()
 
 

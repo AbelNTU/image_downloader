@@ -1,9 +1,10 @@
 # -*- coding: UTF-8 -*-
-#from selenium import webdriver
+import requests,os
+import urllib.parse
 from bs4 import BeautifulSoup
-import json,requests,os,time
 import threading
 from multiprocessing.dummy import Pool
+from queue import Queue
 from datetime import datetime
 import downloader_setting
 
@@ -18,57 +19,55 @@ class downloader(object):
         self.start_index = file_index
         self.pool = Pool(30)
         self.lock = threading.Lock()
+        self.imageURL = Queue()
         self.imageURLerror = 0
         self.iscopyright = False
 
-    def get_image_url(self):
+    def build_page_url(self):
+        word = urllib.parse.quote(self.word)
+        url = 'https://www.flickr.com/search/?text='+word+'&page={page}'
+        res = requests.get('https://www.flickr.com/search/?text='+word,headers = header)
         '''
         if self.iscopyright:
-            url = 'https://www.google.com.tw/search?q='+self.word+'&source=lnms&tbm=isch&tbs=sur:fc'
-            res = requests.get(url,headers = self.header)
-            soup = BeautifulSoup(res.text,"html.parser")
-            all_img = soup.find_all("div","rg_meta")
-            imgURLs = []
-            for a in all_img:
-                link=json.loads(a.text)["ou"]
-                imgURLs.append(link)
-            return imgURLs
+            url = 'https://www.flickr.com/search/?text='+word+'&page={page}&license=4%2C5%2C6%2C9%2C10'
+            res = requests.get('https://www.flickr.com/search/?text='+word+'&license=4%2C5%2C6%2C9%2C10',headers = header)
         else:
+            url = 'https://www.flickr.com/search/?text='+word+'&page={page}'
+            res = requests.get('https://www.flickr.com/search/?text='+word,headers = header)
         '''
-        driver = webdriver.Chrome()
-        driver.implicitly_wait(2)
-        url = "https://www.google.com.tw/search?q="+self.word+"&source=lnms&tbm=isch"
-        driver.get(url)
-        scroll_down = "document.body.scrollTop=document.body.scrollHeight"
-        for i in range(10):
-            driver.execute_script(scroll_down)
-            progress = (i+1)*10
-            nowtime = datetime.now()
-            print('%s 模擬滾動條下拉中 -- %.1f%%' %(str(nowtime),progress))
-            time.sleep(1)
-            try:
-                driver.find_element_by_id('smb').click()
-            except Exception as e:
-                continue
-        elements = driver.find_elements_by_class_name('rg_meta')
-        items = [element.get_attribute('innerHTML') for element in elements]
-        del elements
-        driver.quit()
-        imageURLs = []
-        for item in items:
-            link=json.loads(item)["ou"]
-            imageURLs.append(link)
-        return imageURLs
+        soup = BeautifulSoup(res.text,"html.parser")
+        tag = soup.find_all('a',"view-more-link")
+        result_num = int(tag.text.split(' ')[2])
+        url_list = [url.format(page = i) for i in range(1,result_num//20)]
+        return url_list
+
+    def get_image_url(self,url):
+        res = requests.get(url,headers = self.header)
+        soup = BeautifulSoup(res.text,"html.parser")
+        all_img = soup.find_all("div","view photo-list-photo-view requiredToShowOnServer awake")
+        imgURLs = []
+        for a in all_img:
+            style_list = a['style'].split('; ')
+            img_url = style_list[5]
+            img_url = img_url.replace('background-image: url(','http:').replace(')','')
+            imgURLs.append(img_url)
+        self.lock.acquire()
+        self.imageURL.put(imgURLs)
+        self.lock.release()
+        nowtime = datetime.now()
+        message = str(nowtime)+' 已解析出'+str(len(imgURLs))+'個網址'
+        self.MessageOutput(message)
+        del res
 
     def saveImage(self,url):
         try:
             res = requests.get(url,timeout = 5,headers = self.header)
             if str(res.status_code)[0] != '2':
-                self.MessageOutput('connect fail,status code:'+str(res.status_code))
+                self.MessageOutput('connect fail,status code:'+str(res.status_code)+'url:'+url)
                 self.imageURLerror += 1
                 return
         except Exception as e:
-            self.MessageOutput('connect fail')
+            self.MessageOutput('connect fail , url: '+url)
             self.imageURLerror += 1
             return
         imgdata = res.content
@@ -82,7 +81,7 @@ class downloader(object):
         f.close
         del imgdata,res
         nowtime = datetime.now()
-        self.MessageOutput(str(nowtime)+' 第'+str(index)+'張圖片下載成功')
+        self.MessageOutput(str(nowtime)+' 第'+str(index)+'張圖片下載成功:'+url)
 
     def MessageOutput(self,message):
         self.lock.acquire()
@@ -92,15 +91,18 @@ class downloader(object):
     def start_downloader(self):
         '''
         if downloader_setting.is_python3():
-            choice = input('是否選擇標示允許再利用的圖片[Y/N]：')
+            choice = input('是否選擇允許商業用途的圖片[Y/N]：')
         else:
-            choice = raw_input('是否選擇標示允許再利用的圖片[Y/N]：')
+            choice = raw_input('是否選擇允許商業用途的圖片[Y/N]：')
         if choice.upper() == 'Y':
             self.iscopyright = True
         '''
         startTime = datetime.now()
-        image_urls = self.get_image_url()
-        self.pool.map(self.saveImage,image_urls)
+        page_urls = self.build_page_url()
+        self.pool.map(self.get_image_url,page_urls)
+        while self.imageURL.qsize():
+            url = self.imageURL.get()
+            self.pool.map(self.saveImage,url)
         self.pool.close()
         self.pool.join()
         endTime = datetime.now()
@@ -124,5 +126,4 @@ if __name__ == '__main__':
 
     mydownloader = downloader(search,DIR,index)
     mydownloader.start_downloader()
-
 

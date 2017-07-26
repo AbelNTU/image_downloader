@@ -5,6 +5,7 @@ import urllib.parse
 import threading
 from datetime import datetime
 from multiprocessing.dummy import Pool
+import downloader_setting
 
 class downloader(object):
     """docstring for downloader"""
@@ -35,7 +36,7 @@ class downloader(object):
         time.sleep(0.5)
         driver.find_element_by_link_text('載入更多內容').click()
 
-        page =  700 // 12
+        page =  2000 // 12
         for i in range(page):
             driver.execute_script(scroll_down)
             nowtime = datetime.now()
@@ -98,10 +99,17 @@ class downloader(object):
 if __name__ == '__main__':
     #路徑
     DIR = os.getcwd()
-    search = input('搜尋關鍵字：')
-    DIR = os.path.join(DIR,search)
+    if downloader_setting.is_python3():
+        search = input('關鍵字：')
+    else:
+        search = raw_input('關鍵字：')
+    DIR = os.path.join(DIR,'image',search)
     if not os.path.exists(DIR):
-        os.mkdir(DIR)
-    mydownloader = downloader(search,DIR,1)
+        os.makedirs(DIR)
+        index = 1
+    else:
+        index = downloader_setting.get_index(DIR,search)
+
+    mydownloader = downloader(search,DIR,index)
     mydownloader.start_downloader()
 
