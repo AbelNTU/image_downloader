@@ -55,12 +55,12 @@ class downloader(object):
     char_table = {ord(key): ord(value) for key, value in char_table.items()}
 
     """docstring for downloader"""
-    def __init__(self, word, folder_dir, file_index):
+    def __init__(self, word):
         super(downloader, self).__init__()
         self.word = word
-        self.DIR = folder_dir
-        self.index = file_index
-        self.start_index = file_index
+        self.DIR = ''
+        self.index = 1
+        self.start_index = 1
         self.char_table = downloader.char_table
         self.str_table = downloader.str_table
         self.pool = Pool(30)
@@ -68,12 +68,19 @@ class downloader(object):
         self.lock = threading.Lock()
         self.error = 0
 
-
     def decode(self, url):
         for key,value in self.str_table.items():
             url = url.replace(key,value)
         url = url.translate(self.char_table)
         return url
+
+    def build_image_folder(self):
+        DIR = os.getcwd()
+        DIR = os.path.join(DIR,'image',self.word,'baidu')
+        nowtime = datetime.now()
+        print(nowtime,'正在建立圖片儲存資料夾')
+        self.DIR = os.path.join(DIR,nowtime.strftime('%Y-%m-%d %H:%M:%S'))
+        os.makedirs(self.DIR)
 
     def build_query_url(self):
         word = urllib.parse.quote(self.word)
@@ -135,9 +142,9 @@ class downloader(object):
         self.lock.release()
 
     def start_downloader(self):
-        urls = self.build_query_url()
-        print('downloader start')
         start_time = datetime.now()
+        self.build_image_folder()
+        urls = self.build_query_url()
         self.pool.map(self.revolveImageURL,urls)
         resolve_time = datetime.now()
         print('解析網址共花',resolve_time-start_time)
@@ -150,23 +157,15 @@ class downloader(object):
         print('下載結束,共花了',endtime-resolve_time)
         print('共下載',self.index-self.start_index,'張圖片')
         print('共',self.error,'個圖片網址無法獲取')
-        return self.index
+        return self.index-1
 
 if __name__ == '__main__':
-    DIR = os.getcwd()
-    #創建食物名稱的資料夾
     if downloader_setting.is_python3():
         search = input('關鍵字：')
     else:
         search = raw_input('關鍵字：')
-    DIR = os.path.join(DIR,'image',search)
-    if not os.path.exists(DIR):
-        os.makedirs(DIR)
-        index = 1
-    else:
-        index = downloader_setting.get_index(DIR,search)
 
-    mydownloader = downloader(search,DIR,index)
+    mydownloader = downloader(search)
     mydownloader.start_downloader()
 
 

@@ -13,18 +13,26 @@ import downloader_setting
 
 class downloader(object):
     """docstring for downloader"""
-    def __init__(self, word, folder_dir, file_index):
+    def __init__(self, word):
         super(downloader, self).__init__()
         self.word = word
-        self.DIR = folder_dir
-        self.index = file_index
-        self.start_index = file_index
+        self.DIR = ''
+        self.index = 1
+        self.start_index = 1
         self.pool = Pool(30)
         self.imageURL = Queue()
         self.lock = threading.Lock()
         self.imageError = 0
         self.header = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8'}
         self.iscopyright = False
+
+    def build_image_folder(self):
+        DIR = os.getcwd()
+        DIR = os.path.join(DIR,'image',self.word,'Bing')
+        nowtime = datetime.now()
+        print(nowtime,'正在建立圖片儲存資料夾')
+        self.DIR = os.path.join(DIR,nowtime.strftime('%Y-%m-%d %H:%M:%S'))
+        os.makedirs(self.DIR)
 
     def MessageOutput(self,message):
         self.lock.acquire()
@@ -98,6 +106,7 @@ class downloader(object):
             self.iscopyright = True
         '''
         starttime = datetime.now()
+        self.build_image_folder()
         queryURLs = self.build_query_url()
         self.pool.map(self.resolve_imgURL,queryURLs)
         while self.imageURL.qsize():
@@ -109,22 +118,15 @@ class downloader(object):
         print(endtime,' 下載結束,共下載',self.index-self.start_index,'張圖片')
         print('共',self.imageError,'圖片網址回報錯誤')
         print('總歷時',endtime-starttime)
-        return self.index
+        return self.index-1
 
 if __name__ == '__main__':
-    DIR = os.getcwd()
     if downloader_setting.is_python3():
         search = input('關鍵字：')
     else:
         search = raw_input('關鍵字：')
-    DIR = os.path.join(DIR,'image',search)
-    if not os.path.exists(DIR):
-        os.makedirs(DIR)
-        index = 1
-    else:
-        index = downloader_setting.get_index(DIR,search)
 
-    mydownloader = downloader(search, DIR, index)
+    mydownloader = downloader(search)
     mydownloader.start_downloader()
     del mydownloader
 

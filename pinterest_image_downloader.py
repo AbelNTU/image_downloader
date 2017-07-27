@@ -8,15 +8,23 @@ import downloader_setting
 
 class downloader(object):
     """docstring for downloader"""
-    def __init__(self, word, folder_dir, file_index):
+    def __init__(self, word):
         super(downloader, self).__init__()
         self.word = word
-        self.DIR = folder_dir
-        self.index = file_index
-        self.start_index = file_index
+        self.DIR = ''
+        self.index = 1
+        self.start_index = 1
         self.pool = Pool(30)
         self.lock = threading.Lock()
         self.imageURLerror = 0
+
+    def build_image_folder(self):
+        DIR = os.getcwd()
+        DIR = os.path.join(DIR,'image',self.word,'Pinterest')
+        nowtime = datetime.now()
+        print(nowtime,'正在建立圖片儲存資料夾')
+        self.DIR = os.path.join(DIR,nowtime.strftime('%Y-%m-%d %H:%M:%S'))
+        os.makedirs(self.DIR)
 
     def get_image_url(self):
         search_word = urllib.parse.quote(self.word)
@@ -25,13 +33,19 @@ class downloader(object):
         driver.implicitly_wait(2)
         driver.get(url)
         scroll_down = "document.body.scrollTop=document.body.scrollHeight"
-        page = 30
-        for i in range(page):
+
+        old_height = driver.execute_script("return document.body.scrollHeight")
+        while True:
             nowtime = datetime.now()
-            progress = round((i+1)/page*100,1)
             driver.execute_script(scroll_down)
-            print('%s 模擬滾動條下拉中 -- %.1f%%' %(str(nowtime),progress))
-            time.sleep(1)
+            print('%s 模擬滾動條下拉中 ' %(str(nowtime)))
+            time.sleep(3)
+            height = driver.execute_script("return document.body.scrollHeight")
+            if old_height == height:
+                print('%s 頁面已到底 ' %(str(datetime.now())))
+                break
+            old_height = height
+
         elements = driver.find_elements_by_class_name('GrowthUnauthPinImage')
         image_tags = [element.find_element_by_tag_name('img') for element in elements]
         imageURL = [image_tag.get_attribute('src') for image_tag in image_tags]
@@ -70,6 +84,7 @@ class downloader(object):
 
     def start_downloader(self):
         startTime = datetime.now()
+        self.build_image_folder()
         image_urls = self.get_image_url()
         self.pool.map(self.saveImage,image_urls)
         self.pool.close()
@@ -78,22 +93,14 @@ class downloader(object):
         print(endTime,'下載結束,共下載',self.index-self.start_index,'張圖片')
         print('共',self.imageURLerror,'圖片網址回報錯誤')
         print('總歷時',endTime - startTime)
-        return self.index
+        return self.index-1
 
 if __name__ == '__main__':
-    #路徑
-    DIR = os.getcwd()
     if downloader_setting.is_python3():
         search = input('關鍵字：')
     else:
         search = raw_input('關鍵字：')
-    DIR = os.path.join(DIR,'image',search)
-    if not os.path.exists(DIR):
-        os.makedirs(DIR)
-        index = 1
-    else:
-        index = downloader_setting.get_index(DIR,search)
 
-    mydownloader = downloader(search,DIR,index)
+    mydownloader = downloader(search)
     mydownloader.start_downloader()
 
