@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import random,os
 import shutil
+from downloader_setting import is_python3
 random.seed(10)
 
 def get_filenames(folder_dir):
@@ -21,7 +22,10 @@ def build_subfolder(folder_dir):
             os.mkdir(subfolder_dir)
 
 if __name__ == '__main__':
-    DIR = input('input folder directory:')
+    if is_python3():
+        DIR = input('input folder directory:')
+    else:
+        DIR = raw_input('input folder directory:')
     build_subfolder(DIR)
     filenames = get_filenames(DIR)
     print(filenames)
