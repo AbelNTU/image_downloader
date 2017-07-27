@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-#from selenium import webdriver
+from selenium import webdriver
 from bs4 import BeautifulSoup
 import json,requests,os,time
 import threading

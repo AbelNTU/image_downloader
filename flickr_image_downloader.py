@@ -26,18 +26,19 @@ class downloader(object):
     def build_page_url(self):
         word = urllib.parse.quote(self.word)
         url = 'https://www.flickr.com/search/?text='+word+'&page={page}'
-        res = requests.get('https://www.flickr.com/search/?text='+word,headers = header)
+        res = requests.get('https://www.flickr.com/search/?text='+word,headers = self.header)
         '''
         if self.iscopyright:
             url = 'https://www.flickr.com/search/?text='+word+'&page={page}&license=4%2C5%2C6%2C9%2C10'
-            res = requests.get('https://www.flickr.com/search/?text='+word+'&license=4%2C5%2C6%2C9%2C10',headers = header)
+            res = requests.get('https://www.flickr.com/search/?text='+word+'&license=4%2C5%2C6%2C9%2C10',headers = self.header)
         else:
             url = 'https://www.flickr.com/search/?text='+word+'&page={page}'
-            res = requests.get('https://www.flickr.com/search/?text='+word,headers = header)
+            res = requests.get('https://www.flickr.com/search/?text='+word,headers = self.header)
         '''
         soup = BeautifulSoup(res.text,"html.parser")
         tag = soup.find_all('a',"view-more-link")
-        result_num = int(tag.text.split(' ')[2])
+        result_text = tag[0].text.split(' ')[2]
+        result_num = int(result_text.replace(',',''))
         url_list = [url.format(page = i) for i in range(1,result_num//20)]
         return url_list
 

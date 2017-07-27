@@ -36,7 +36,7 @@ class downloader(object):
         time.sleep(0.5)
         driver.find_element_by_link_text('載入更多內容').click()
 
-        page =  2000 // 12
+        page =  maxnum // 12
         for i in range(page):
             driver.execute_script(scroll_down)
             nowtime = datetime.now()

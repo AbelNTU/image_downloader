@@ -1,4 +1,4 @@
-import sys
+import sys,os
 
 def is_python3():
     string = sys.version

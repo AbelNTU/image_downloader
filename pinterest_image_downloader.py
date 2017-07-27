@@ -25,7 +25,7 @@ class downloader(object):
         driver.implicitly_wait(2)
         driver.get(url)
         scroll_down = "document.body.scrollTop=document.body.scrollHeight"
-        page = 40
+        page = 30
         for i in range(page):
             nowtime = datetime.now()
             progress = round((i+1)/page*100,1)
