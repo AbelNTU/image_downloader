@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from selenium import webdriver
-import requests,re,time,os
+import requests,re,time,os,random
 import urllib.parse
 import threading
 from datetime import datetime
@@ -50,7 +50,7 @@ class downloader(object):
             nowtime = datetime.now()
             progress = round((i+1)/page*100,1)
             print('%s 模擬滾動條下拉中 -- %.1f%%' %(str(nowtime),progress))
-            time.sleep(2)
+            time.sleep(random.randint(2,30))
             #driver.execute_script(scroll_up)
         nowtime = datetime.now()
         print(nowtime,'開始擷取圖片網址')
@@ -63,6 +63,7 @@ class downloader(object):
 
     def saveImage(self,url):
         try:
+            #url.replace('s640x640/','')
             res = requests.get(url,timeout = 5)
             if str(res.status_code)[0] != '2':
                 self.MessageOutput('connect fail,status code:'+str(res.status_code))

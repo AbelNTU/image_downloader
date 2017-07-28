@@ -85,6 +85,8 @@ class downloader(object):
 
     def saveImage(self,url):
         try:
+            url = url.replace('_n.jpg','_b.jpg')
+            url = url.replace('_m.jpg','_b.jpg')
             res = requests.get(url,timeout = 5,headers = self.header)
             if str(res.status_code)[0] != '2':
                 self.MessageOutput('connect fail,status code:'+str(res.status_code)+'url:'+url)
