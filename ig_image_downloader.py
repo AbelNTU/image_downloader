@@ -24,7 +24,7 @@ class downloader(object):
         DIR = os.path.join(DIR,'image',self.word,'Instagram')
         nowtime = datetime.now()
         print(nowtime,'正在建立圖片儲存資料夾')
-        self.DIR = os.path.join(DIR,nowtime.strftime('%Y-%m-%d %H:%M:%S'))
+        self.DIR = os.path.join(DIR,nowtime.strftime('%Y-%m-%d %H-%M-%S'))
         os.makedirs(self.DIR)
 
     def get_image_url(self):

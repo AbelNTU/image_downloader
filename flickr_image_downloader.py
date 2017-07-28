@@ -28,7 +28,7 @@ class downloader(object):
         DIR = os.path.join(DIR,'image',self.word,'flickr')
         nowtime = datetime.now()
         print(nowtime,'正在建立圖片儲存資料夾')
-        self.DIR = os.path.join(DIR,'任何授權',nowtime.strftime('%Y-%m-%d %H:%M:%S'))
+        self.DIR = os.path.join(DIR,'任何授權',nowtime.strftime('%Y-%m-%d %H-%M-%S'))
         '''
         if self.iscopyright == 1:
             #所有創作cc

@@ -19,7 +19,7 @@ def build_subfolder(folder_dir):
     for name in name_list:
         subfolder_dir = os.path.join(folder_dir,name)
         if not os.path.exists(subfolder_dir):
-            os.mkdir(subfolder_dir)
+            os.makedirs(subfolder_dir)
 
 if __name__ == '__main__':
     if is_python3():
@@ -35,13 +35,13 @@ if __name__ == '__main__':
     val_num = num//5
     random.shuffle(filenames)
     train = filenames[:train_num]
-    validation = filenames[train_num:val_num+train_num]
-    test = filenames[val_num+train_num:]
+    validation = filenames[train_num:]
 
+    folder_list = [train,validation]
     name_list = ['train','validation']
 
-    for i in range(len(three_list)):
-        filenames = three_list[i]
+    for i in range(len(folder_list)):
+        filenames = folder_list[i]
         print(filenames)
         folder_name = name_list[i]
         for filename in filenames:
