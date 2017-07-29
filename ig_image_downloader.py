@@ -45,6 +45,7 @@ class downloader(object):
         driver.find_element_by_link_text('載入更多內容').click()
 
         page =  maxnum // 12
+        old_height = driver.execute_script("return document.body.scrollHeight")
         for i in range(page):
             driver.execute_script(scroll_down)
             nowtime = datetime.now()
@@ -52,6 +53,12 @@ class downloader(object):
             print('%s 模擬滾動條下拉中 -- %.1f%%' %(str(nowtime),progress))
             time.sleep(random.randint(2,30))
             #driver.execute_script(scroll_up)
+            height = driver.execute_script("return document.body.scrollHeight")
+            if old_height == height:
+                print('%s 頁面已到底 ' %(str(datetime.now())))
+                break
+            old_height = height
+
         nowtime = datetime.now()
         print(nowtime,'開始擷取圖片網址')
         elements = driver.find_elements_by_class_name('_jjzlb')
@@ -63,6 +70,7 @@ class downloader(object):
 
     def saveImage(self,url):
         try:
+            time.sleep(5)
             #url.replace('s640x640/','')
             res = requests.get(url,timeout = 5)
             if str(res.status_code)[0] != '2':
