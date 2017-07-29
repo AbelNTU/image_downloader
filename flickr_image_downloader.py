@@ -60,7 +60,7 @@ class downloader(object):
         '''
         soup = BeautifulSoup(res.text,"html.parser")
         tag = soup.find_all('a',"view-more-link")
-        result_text = tag[0].text.split(' ')[2]
+        result_text = tag[0].text.split(' ')[-1]
         result_num = int(result_text.replace(',',''))
         url_list = [url.format(page = i) for i in range(1,result_num//20+1)]
         return url_list
